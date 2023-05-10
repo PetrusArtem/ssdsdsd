@@ -112,18 +112,10 @@ def handle_answer_C(message):
                 answers = [answer_A, answer_B, answer_C] 
         result = sum(answers)
         google_sheet.update_cell(row.row, column_names['result'], str(result))
-        
-        bot.send_message(message.chat.id, f"Ваши ответы: {answers[0]}, {answers[1]}, {answers[2]}")
-        bot.send_message(message.chat.id, f"Ваш результат: {result}")
-        
+        send_result(message)
     else:
         bot.send_message(message.chat.id, "Вы ввели некорректный ответ. Пожалуйста, введите цифру.")
         bot.register_next_step_handler(message, handle_answer_C)
-
-# функция для записи результата в таблицу
-def write_result_to_sheet(result, user_id):
-    row = google_sheet.find(user_id).row
-    google_sheet.update_cell(row, column_names['result'], result)
 
 # функция для отправки результата пользователю и предложения пройти опрос заново
 def send_result(message):
