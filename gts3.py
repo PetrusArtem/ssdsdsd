@@ -3,6 +3,8 @@ import gspread
 import time
 from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime
+from telebot import types
+
 
 # настройки бота
 bot_token = '5990588377:AAGLUbfFDUQ7GrF6qmTxxZab1oM7TWbgFDM'
@@ -89,7 +91,7 @@ def handle_answer_B(message):
         google_sheet.update_cell(row.row, column_names['answer_B'], answer_B)
         ask_question_C(message)
     else:
-        bot.send_message(message.chat.id, "Вы ввели некорректный ответ. Пожалуйста, введите цифру.")
+        bot.send_message(message.chat.id,  "Вы ввели некорректный ответ. Пожалуйста, введите цифру.")
         bot.register_next_step_handler(message, handle_answer_B)
 
 # функция для задания вопроса C и проверки верности ответа
@@ -107,15 +109,6 @@ def handle_answer_C(message):
     if is_digit(answer_C):
         row = google_sheet.find(user_id)
         google_sheet.update_cell(row.row, column_names['answer_C'], answer_C)
-        
-        data = google_sheet.get_all_values()
-        answer_A = int(data[-1][column_names['answer_A']])
-        answer_B = int(data[-1][column_names['answer_B']])
-        answer_C = int(data[-1][column_names['answer_C']])
-        if answer_A and answer_B and answer_C:
-                answers = [answer_A, answer_B, answer_C] 
-        result = sum(answers)
-        google_sheet.update_cell(row.row, column_names['result'], str(result))
         send_result(message)
     else:
         bot.send_message(message.chat.id, "Вы ввели некорректный ответ. Пожалуйста, введите цифру.")
@@ -151,9 +144,7 @@ def handle_final_answer(message):
 
         # задержка на 1 секунду, чтобы данные успели обновиться в таблице
         time.sleep(1)
-
         result = answer_A + answer_B + answer_C
-        write_result_to_sheet(result, user_id)
         
         # отправляем пользователю результат
         bot.send_message(chat_id=user_id, text="Результат: " + str(result), reply_markup=telebot.types.ReplyKeyboardRemove())
