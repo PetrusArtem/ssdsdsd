@@ -65,11 +65,11 @@ def ask_question_A(message):
 # функция для проверки верности ответа A, записи в таблицу и перехода к вопросу B или повторному вопросу A
 def handle_answer_A(message):
     user_id = str(message.chat.id)
-    username = message.chat.username
     answer_A = message.text
 
     if is_digit(answer_A):
-        write_answers_to_table(user_id, username, answer_A, '', '')
+        row = google_sheet.find(user_id)
+        google_sheet.update_cell(row.row, column_names['answer_A'], answer_A)
         ask_question_B(message)
     else:
         bot.send_message(message.chat.id, "Вы ввели некорректный ответ. Пожалуйста, введите цифру.")
@@ -83,7 +83,6 @@ def ask_question_B(message):
 # функция для проверки верности ответа B, записи в таблицу и перехода к вопросу C или повторному вопросу B
 def handle_answer_B(message):
     user_id = str(message.chat.id)
-    username = message.chat.username
     answer_B = message.text
 
     if is_digit(answer_B):
@@ -103,7 +102,6 @@ def ask_question_C(message):
 # функция для проверки верности ответа C, записи в таблицу и отправки результата пользователю или повторному вопросу C
 def handle_answer_C(message):
     user_id = str(message.chat.id)
-    username = message.chat.username
     answer_C = message.text
 
     if is_digit(answer_C):
@@ -118,7 +116,6 @@ def handle_answer_C(message):
 def send_result(message):
     user_id = str(message.chat.id)
     row = google_sheet.find(user_id)
-    result = google_sheet.cell(row.row, column_names['result']).value
 
     # отправляем пользователю сообщение с вопросом о получении расчета
     markup = telebot.types.ReplyKeyboardMarkup(row_width=2, one_time_keyboard=True)
@@ -137,14 +134,10 @@ def handle_final_answer(message):
 
     # если ответ пользователя - "да"
     if answer == 'да':
-        row = google_sheet.find(user_id)
-        answer_A = int(google_sheet.cell(row.row, column_names['answer_A']).value or 0)
-        answer_B = int(google_sheet.cell(row.row, column_names['answer_B']).value or 0)
-        answer_C = int(google_sheet.cell(row.row, column_names['answer_C']).value or 0)
+        row = google_sheet.find(user_id) # находим строку пользователя
+        result = google_sheet.cell(row.row, column_names['result']).value # получаем содержимое ячейки с ответом
+        time.sleep(1) # задержка на 1 секунду, чтобы данные успели обновиться в таблице
 
-        # задержка на 1 секунду, чтобы данные успели обновиться в таблице
-        time.sleep(1)
-        result = answer_A + answer_B + answer_C
         
         # отправляем пользователю результат
         bot.send_message(chat_id=user_id, text="Результат: " + str(result), reply_markup=telebot.types.ReplyKeyboardRemove())
