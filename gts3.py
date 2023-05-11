@@ -70,7 +70,7 @@ def handle_answer_A(message):
         write_answers_to_table(user_id, username, answer_A, '', '')
         ask_question_B(message)
     else:
-        bot.send_message(message, "Вы ввели некорректный ответ. Пожалуйста, введите цифру.")
+        bot.send_message(message.chat.id, "Вы ввели некорректный ответ. Пожалуйста, введите цифру.")
         bot.register_next_step_handler(message, handle_answer_A)
 
 # функция для задания вопроса B и проверки верности ответа
@@ -89,7 +89,7 @@ def handle_answer_B(message):
         google_sheet.update_cell(row.row, column_names['answer_B'], answer_B)
         ask_question_C(message)
     else:
-        bot.send_message(message, "Вы ввели некорректный ответ. Пожалуйста, введите цифру.")
+        bot.send_message(message.chat.id, "Вы ввели некорректный ответ. Пожалуйста, введите цифру.")
         bot.register_next_step_handler(message, handle_answer_B)
 
 # функция для задания вопроса C и проверки верности ответа
