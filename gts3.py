@@ -48,6 +48,25 @@ def write_answers_to_table(id, username, answer_A, answer_B, answer_C):
     cell_list[4].value = answer_B
     cell_list[5].value = answer_C
     google_sheet.update_cells(cell_list)
+
+@bot.message_handler(commands=['start', 'restart'])
+def send_welcome(message):
+    command = message.text.split()[0][1:]
+    username = message.chat.username
+    user_id = str(message.chat.id)
+    current_time = datetime.now().strftime("%d-%m-%y %H:%M:%S")
+
+    # если пользователь отправил команду "start" или "restart"
+    if command in ['start', 'restart']:
+        # отправляем приветственное сообщение и задаем первый вопрос
+        bot.send_message(message.chat.id, "Добро пожаловать! Начнем опрос.")
+        write_answers_to_table(user_id, username, current_time, '', '')
+        ask_question_A(message)
+
+    # если пользователь отправил неизвестную команду
+    else:
+        bot.send_message(str(message.chat.id), "Команда не распознана, попробуйте еще раз.")
+
     
 # функция для проверки, является ли введенный ответ цифрой
 def is_digit(answer):
@@ -153,24 +172,5 @@ def handle_final_answer(message):
         bot.send_message(chat_id=user_id, text="Пожалуйста, ответьте 'Да' или 'Нет'.")
         bot.register_next_step_handler(message, handle_final_answer)
 
-@bot.message_handler(commands=['start', 'restart'])
-def send_welcome(message):
-    command = message.text.split()[0][1:]
-    user_id = str(message.chat.id)
-
-    # если пользователь отправил команду "start" или "restart"
-    if command in ['start', 'restart']:
-        # удаляем старые ответы из таблицы, связанные с этим пользователем
-        rows = google_sheet.findall(user_id)
-        for row in rows:
-            google_sheet.delete_rows(row.row)
-
-        # отправляем приветственное сообщение и задаем первый вопрос
-        bot.send_message(message.chat.id, "Добро пожаловать! Начнем опрос.")
-        ask_question_A(message)
-
-    # если пользователь отправил неизвестную команду
-    else:
-        bot.send_message(str(message.chat.id), "Команда не распознана, попробуйте еще раз.")
 
 bot.polling(none_stop=True)
