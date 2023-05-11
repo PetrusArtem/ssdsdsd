@@ -48,8 +48,12 @@ def write_answers_to_table(id, username, answer_A, answer_B, answer_C):
     google_sheet.update_cells(cell_list)
     
 # функция для проверки, является ли введенный ответ цифрой
-def is_digit(input_str):
-    return input_str.isdigit()
+def is_digit(answer):
+    try:
+        int(answer)
+        return True
+    except ValueError:
+        return False
 
 # функция для задания вопроса A и проверки верности ответа
 def ask_question_A(message):
